@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/ignacioparadisi/stock-market-forecasting/issues"
   },
-  "homepage": "https://github.com/ignacioparadisi/stock-market-forecasting#readme"
+  "homepage": "https://github.com/ignacioparadisi/stock-market-forecasting#readme",
+  "dependencies": {
+    "selenium-webdriver": "^4.1.1"
+  }
 }
