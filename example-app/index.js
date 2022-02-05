@@ -5,10 +5,52 @@ let sma_vec = [];
 let window_size = 50;
 let trainingsize = 70;
 let data_temporal_resolutions = 'Weekly';
+let csvText = "";
+
 
 $(document).ready(function(){
   $('select').formSelect();
 });
+
+document.getElementById('inputfile')
+            .addEventListener('change', function() {
+              
+            var fr=new FileReader();
+            fr.onload=function(){
+                csvText=fr.result;
+            }
+              
+            fr.readAsText(this.files[0]);
+        })
+
+//var csv is the CSV file with headers
+function csvJSON(csv) {
+  var lines=csv.split("\n");
+
+  var result = [];
+
+  // NOTE: If your columns contain commas in their values, you'll need
+  // to deal with those before doing the next step 
+  // (you might convert them to &&& or something, then covert them back later)
+  // jsfiddle showing the issue https://jsfiddle.net/
+  var headers=lines[0].split(",");
+
+  for(var i=1;i<lines.length;i++){
+
+      var obj = {};
+      var currentline=lines[i].split(",");
+
+      for(var j=0;j<headers.length;j++){
+          obj[headers[j]] = currentline[j];
+      }
+
+      result.push(obj);
+
+  }
+
+  //return result; //JavaScript object
+  return result;
+}
 
 
 function onClickChangeDataFreq(freq){
@@ -25,66 +67,106 @@ function onClickFetchData(){
   $("#btn_fetch_data").hide();
   $("#load_fetch_data").show();
 
-  let requestUrl = "";
-  if(data_temporal_resolutions == 'Daily'){
-    requestUrl = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol="+ticker+"&outputsize=full&apikey="+apikey;
-  }else{
-    requestUrl = "https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol="+ticker+"&apikey="+apikey;
-  }
+  let json = csvJSON(csvText);
 
-  $.getJSON(requestUrl
-    ,function(data){
-      // let data = gotten_data_raw;
-      // console.log(12, JSON.stringify(data))
-
-      let message = "";
+  // convertToJSON().then(json => {
+    let message = "";
       $("#div_container_linegraph").show();
+      let symbol = 'TDVd';
+      let last_refreshed = new Date();
 
-      let daily = [];
-      if(data_temporal_resolutions == 'Daily'){
-        daily = data['Time Series (Daily)'];
-      }else{
-        daily = data['Weekly Adjusted Time Series'];
+      data_raw = [];
+      sma_vec = [];
+
+      console.log(json);
+      for(let index = 0; index < json.length; index++) {
+        let obj = json[index];
+        let date = new Date(obj['Date']);
+        let price = parseFloat(obj['Price']);
+        if (date > new Date('2018-03-13')) {
+          price *= 100000;
+        } 
+        if (date > new Date('2021-09-28')) {
+          price *= 1000000;
+        } 
+        data_raw.push({ timestamp: obj['Date'], price: price });
       }
 
-      if(daily){
-        let symbol = data['Meta Data']['2. Symbol'];
-        let last_refreshed = data['Meta Data']['3. Last Refreshed'];
+      data_raw.reverse();
 
-        data_raw = [];
-        sma_vec = [];
+      message = "Symbol: " + symbol + " (last refreshed " + last_refreshed + ")";
 
-        let index = 0;
-        for(let date in daily){
-          data_raw.push({ timestamp: date, price: parseFloat(daily[date]['5. adjusted close']) });
-          index++;
-        }
+      $("#btn_fetch_data").show();
+      $("#load_fetch_data").hide();
+      $("#div_linegraph_data_title").text(message);
 
-        data_raw.reverse();
+      if(data_raw.length > 0){
+        let timestamps = data_raw.map(function (val) { return val['timestamp']; });
+        let prices = data_raw.map(function (val) { return val['price']; });
 
-        message = "Symbol: " + symbol + " (last refreshed " + last_refreshed + ")";
-
-        $("#btn_fetch_data").show();
-        $("#load_fetch_data").hide();
-        $("#div_linegraph_data_title").text(message);
-
-        if(data_raw.length > 0){
-          let timestamps = data_raw.map(function (val) { return val['timestamp']; });
-          let prices = data_raw.map(function (val) { return val['price']; });
-
-          let graph_plot = document.getElementById('div_linegraph_data');
-          Plotly.newPlot( graph_plot, [{ x: timestamps, y: prices, name: "Stocks Prices" }], { margin: { t: 0 } } );
-        }
-
-        $("#div_container_getsma").show();
-        $("#div_container_getsmafirst").hide();
-
-      }else{
-        $("#div_linegraph_data").text( data['Information'] );
+        let graph_plot = document.getElementById('div_linegraph_data');
+        Plotly.newPlot( graph_plot, [{ x: timestamps, y: prices, name: "Stocks Prices" }], { margin: { t: 0 } } );
       }
 
-    }
-  );
+      $("#div_container_getsma").show();
+      $("#div_container_getsmafirst").hide();
+  // })
+
+
+
+  // $.getJSON(requestUrl
+  //   ,function(data){
+  //     // let data = gotten_data_raw;
+  //     // console.log(12, JSON.stringify(data))
+
+  //     let message = "";
+  //     $("#div_container_linegraph").show();
+
+  //     let daily = [];
+  //     if(data_temporal_resolutions == 'Daily'){
+  //       daily = data['Time Series (Daily)'];
+  //     }else{
+  //       daily = data['Weekly Adjusted Time Series'];
+  //     }
+
+  //     if(daily){
+  //       let symbol = data['Meta Data']['2. Symbol'];
+  //       let last_refreshed = data['Meta Data']['3. Last Refreshed'];
+
+  //       data_raw = [];
+  //       sma_vec = [];
+
+  //       let index = 0;
+  //       for(let date in daily){
+  //         data_raw.push({ timestamp: date, price: parseFloat(daily[date]['5. adjusted close']) });
+  //         index++;
+  //       }
+
+  //       data_raw.reverse();
+
+  //       message = "Symbol: " + symbol + " (last refreshed " + last_refreshed + ")";
+
+  //       $("#btn_fetch_data").show();
+  //       $("#load_fetch_data").hide();
+  //       $("#div_linegraph_data_title").text(message);
+
+  //       if(data_raw.length > 0){
+  //         let timestamps = data_raw.map(function (val) { return val['timestamp']; });
+  //         let prices = data_raw.map(function (val) { return val['price']; });
+
+  //         let graph_plot = document.getElementById('div_linegraph_data');
+  //         Plotly.newPlot( graph_plot, [{ x: timestamps, y: prices, name: "Stocks Prices" }], { margin: { t: 0 } } );
+  //       }
+
+  //       $("#div_container_getsma").show();
+  //       $("#div_container_getsmafirst").hide();
+
+  //     }else{
+  //       $("#div_linegraph_data").text( data['Information'] );
+  //     }
+
+  //   }
+  // );
 
 }
 

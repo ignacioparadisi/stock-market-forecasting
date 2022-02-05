@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/ignacioparadisi/stock-market-forecasting#readme",
   "dependencies": {
+    "csvtojson": "^2.0.10",
     "selenium-webdriver": "^4.1.1"
   }
 }
