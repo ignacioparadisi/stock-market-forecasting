@@ -1,0 +1,22 @@
+{
+  "name": "stock-market-forecasting",
+  "version": "1.0.0",
+  "description": "",
+  "main": "fetchStocks.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ignacioparadisi/stock-market-forecasting.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ignacioparadisi/stock-market-forecasting/issues"
+  },
+  "homepage": "https://github.com/ignacioparadisi/stock-market-forecasting#readme",
+  "dependencies": {
+    "json2csv": "^5.0.6"
+  }
+}
