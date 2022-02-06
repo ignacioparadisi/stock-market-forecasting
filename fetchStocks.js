@@ -1,6 +1,5 @@
 const https = require('https');
 const fs = require('fs');
-const json2csv = require('json2csv');
 const url = 'https://www.bolsadecaracas.com/resumen-mercado/';
 
 const request = https.get(url, response => {
@@ -28,8 +27,8 @@ const value = `<tr class="text-center color-equal"><td class="icon-tabs no-borde
 function dacodeData(string) {
     let newString = string.replace(/\t/g, '');
     let lines = newString.split('\n');
-    let filteredLines = lines.filter(line => { 
-        return line.includes(`$('#tbody-resumenmercado-todossimbolos').append('`) 
+    let filteredLines = lines.filter(line => {
+        return line.includes(`$('#tbody-resumenmercado-todossimbolos').append('`)
     });
     if (filteredLines.length == 0) {
         return;
@@ -39,6 +38,7 @@ function dacodeData(string) {
     htmlString = htmlString.slice(0, htmlString.length - 3);
     let stocks = getStocks(htmlString);
     console.log(stocks);
+    whiteCSV(stocks);
 }
 
 function getStocks(string) {
@@ -64,45 +64,47 @@ function getStocks(string) {
 
 function padTo2Digits(num) {
     return num.toString().padStart(2, '0');
-  }
+}
 
 function whiteCSV(stocks) {
-    var fields = ['Date', 'Price'];
+    let newLine = '\r\n';
     let date = new Date()
     let dateString = `${date.getFullYear()}-${padTo2Digits(date.getMonth() + 1)}-${padTo2Digits(date.getDate())}`
     for (let stock of stocks) {
-        let dataToAppend = [{
-            Date: dateString,
-            Price: stock.value
-        }]
-        let toCsv = {
-            data: dataToAppend,
-            fields: fields,
-            header: false,
-          };
+        const fileName = `Historico/${stock.symbol}.csv`
 
-        const fileName = `${stock.symbol}.csv`
-          
         fs.stat(fileName, (err, stat) => {
             if (err == null) {
                 console.log(`File ${fileName} exists`);
-                //write the actual data and end with newline
-                var csv = json2csv(toCsv) + newLine;
-            
-                fs.appendFile(fileName, csv, function (err) {
-                  if (err) throw err;
-                  console.log('The "data to append" was appended to file!');
+                fs.readFile(fileName, 'utf8', (err, data) => {
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
+                    let splitData = data.split('\r\n');
+                    let lastRegister = splitData[splitData.length - 1].split(',');
+                    let lastDate = lastRegister[0];
+                    if (dateString == lastDate) {
+                        console.log(`Value already exists for date ${dateString}`);
+                        return;
+                    }
+                    //write the actual data and end with newline
+                    var csv = newLine + `${dateString},${stock.value}`;
+                    fs.appendFile(fileName, csv, function (err) {
+                        if (err) throw err;
+                        console.log(`The data was appended to ${fileName}`);
+                    });
+
                 });
-              } else {
+            } else {
                 //write the headers and newline
-                console.log('New file, just writing headers');
-                fields = fields + newLine;
-            
-                fs.writeFile(fileName, fields, function (err) {
-                  if (err) throw err;
-                  console.log('file saved');
+                console.log(`Creating new fiel ${fileName}`);
+                let csv = 'Date,Price' + newLine + `${dateString},${stock.value}`
+                fs.writeFile(fileName, csv, function (err) {
+                    if (err) throw err;
+                    console.log('file saved');
                 });
-              }
+            }
         })
     }
 }
