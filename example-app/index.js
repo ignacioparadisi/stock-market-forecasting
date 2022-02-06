@@ -83,12 +83,12 @@ function onClickFetchData(){
         let obj = json[index];
         let date = new Date(obj['Date']);
         let price = parseFloat(obj['Price']);
-        if (date > new Date('2018-08-20')) {
-          price /= 100000;
-        } 
-        if (date > new Date('2021-10-01')) {
+        if (date < new Date('2021-10-01')) {
           price /= 1000000;
-        } 
+        }
+        if (date < new Date('2018-08-20')) {
+          price /= 100000;
+        }  
         data_raw.push({ timestamp: obj['Date'], price: price });
       }
 
