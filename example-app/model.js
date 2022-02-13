@@ -1,16 +1,16 @@
 async function trainModel(X, Y, window_size, n_epochs, learning_rate, n_layers, callback){
 
-  const batch_size = 32;
+  const batch_size = window_size;
 
   // input dense layer
   const input_layer_shape = window_size;
-  const input_layer_neurons = 64;
+  const input_layer_neurons = 50;
 
   // LSTM
-  const rnn_input_layer_features = 16;
+  const rnn_input_layer_features = 10;
   const rnn_input_layer_timesteps = input_layer_neurons / rnn_input_layer_features;
   const rnn_input_shape = [rnn_input_layer_features, rnn_input_layer_timesteps]; // the shape have to match input layer's shape
-  const rnn_output_neurons = 16; // number of neurons per LSTM's cell
+  const rnn_output_neurons = 20; // number of neurons per LSTM's cell
 
   // output dense layer
   const output_layer_shape = rnn_output_neurons; // dense layer input size is same as LSTM cell
@@ -22,12 +22,16 @@ async function trainModel(X, Y, window_size, n_epochs, learning_rate, n_layers, 
 
   // ## new: load data into tensor and normalize data
 
-  const inputTensor = tf.tensor2d(X, [X.length, X[0].length])
-  const labelTensor = tf.tensor2d(Y, [Y.length, 1]).reshape([Y.length, 1])
+  // const inputTensor = tf.tensor2d(X, [X.length, X[0].length])
+  // const labelTensor = tf.tensor2d(Y, [Y.length, 1]).reshape([Y.length, 1])
 
-  const [xs, inputMax, inputMin] = normalizeTensorFit(inputTensor)
-  const [ys, labelMax, labelMin] = normalizeTensorFit(labelTensor)
+  // const [xs, inputMax, inputMin] = normalizeTensorFit(inputTensor)
+  // const [ys, labelMax, labelMin] = normalizeTensorFit(labelTensor)
 
+  console.log(X);
+  console.log(X.length+" "+X[0].length)
+  const xs=tf.tensor2d(X,[X.length,X[0].length]).div(tf.scalar(10));
+  const ys=tf.tensor2d(Y,[Y.length,1]).reshape([Y.length,1]).div(tf.scalar(10));
   // ## define model
 
   const model = tf.sequential();
@@ -64,18 +68,24 @@ async function trainModel(X, Y, window_size, n_epochs, learning_rate, n_layers, 
   });
 
   // return { model: model, stats: hist };
-  return { model: model, stats: hist, normalize: {inputMax:inputMax, inputMin:inputMin, labelMax:labelMax, labelMin:labelMin} };
+  return { model: model, stats: hist };
 }
 
-function makePredictions(X, model, dict_normalize)
+function makePredictions(X, model)
 {
     // const predictedResults = model.predict(tf.tensor2d(X, [X.length, X[0].length]).div(tf.scalar(10))).mul(10); // old method
     
-    X = tf.tensor2d(X, [X.length, X[0].length]);
-    const normalizedInput = normalizeTensor(X, dict_normalize["inputMax"], dict_normalize["inputMin"]);
-    const model_out = model.predict(normalizedInput);
-    const predictedResults = unNormalizeTensor(model_out, dict_normalize["labelMax"], dict_normalize["labelMin"]);
+    // X = tf.tensor2d(X, [X.length, X[0].length]);
+    // const normalizedInput = normalizeTensor(X, dict_normalize["inputMax"], dict_normalize["inputMin"]);
+    // const model_out = model.predict(normalizedInput);
+    // const predictedResults = unNormalizeTensor(model_out, dict_normalize["labelMax"], dict_normalize["labelMin"]);
 
+    // return Array.from(predictedResults.dataSync());
+
+    console.table(X.length);
+    console.log(String(X[0]).length)
+    const predictedResults = model.predict(tf.tensor2d(X,[X.length,X[0].length]).div(tf.scalar(10))).mul(10);
+    console.log(predictedResults.dataSync());
     return Array.from(predictedResults.dataSync());
 }
 
