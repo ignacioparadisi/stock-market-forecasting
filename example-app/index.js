@@ -41,7 +41,9 @@ function csvJSON(csv) {
       var currentline=lines[i].split(",");
 
       for(var j=0;j<headers.length;j++){
-          obj[headers[j]] = currentline[j];
+          if (currentline[j]){
+            obj[headers[j]] = currentline[j].replace(/\"/g, "");
+          }
       }
 
       result.push(obj);
@@ -69,7 +71,6 @@ function onClickFetchData(){
 
   let json = csvJSON(csvText);
 
-  // convertToJSON().then(json => {
     let message = "";
       $("#div_container_linegraph").show();
       let symbol = 'TDVd';
@@ -78,21 +79,21 @@ function onClickFetchData(){
       data_raw = [];
       sma_vec = [];
 
-      console.log(json);
+      //console.log(json);
       for(let index = 0; index < json.length; index++) {
         let obj = json[index];
-        let date = new Date(obj['Date']);
-        let price = parseFloat(obj['Price']);
+        let date = new Date(obj['date']);
+        let price = parseFloat(obj['close']);
         if (date < new Date('2021-10-01')) {
           price /= 1000000;
         }
         if (date < new Date('2018-08-20')) {
           price /= 100000;
         }  
-        data_raw.push({ timestamp: obj['Date'], price: price });
+        data_raw.push({ timestamp: obj['date'], price: price });
       }
 
-      data_raw.reverse();
+      //data_raw.reverse();
 
       message = "Symbol: " + symbol + " (last refreshed " + last_refreshed + ")";
 
@@ -299,13 +300,13 @@ function onClickValidate() {
   // let outputs = sma_vec.map(function(outp_f) { return outp_f['avg']; });
   // let outps = outputs.slice(0, Math.floor(trainingsize / 100 * inputs.length));
   // console.log('val_train_x', val_train_x)
-  let val_train_y = makePredictions(val_train_x, result['model'], result['normalize']);
+  let val_train_y = makePredictions(val_train_x, result['model']);
   // console.log('val_train_y', val_train_y)
 
   // validate on unseen
   let val_unseen_x = inputs.slice(Math.floor(trainingsize / 100 * inputs.length), inputs.length);
   // console.log('val_unseen_x', val_unseen_x)
-  let val_unseen_y = makePredictions(val_unseen_x, result['model'], result['normalize']);
+  let val_unseen_y = makePredictions(val_unseen_x, result['model']);
   // console.log('val_unseen_y', val_unseen_y)
 
   let timestamps_a = data_raw.map(function (val) { return val['timestamp']; });
@@ -344,7 +345,7 @@ async function onClickPredict() {
   });
   let pred_X = [inputs[inputs.length-1]];
   pred_X = pred_X.slice(Math.floor(trainingsize / 100 * pred_X.length), pred_X.length);
-  let pred_y = makePredictions(pred_X, result['model'], result['normalize']);
+  let pred_y = makePredictions(pred_X, result['model']);
 
   window_size = parseInt(document.getElementById("input_windowsize").value);
 
