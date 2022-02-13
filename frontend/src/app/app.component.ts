@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import * as danfo from 'danfojs';
+import {DataServiceService} from "./data-service.service";
 
 @Component({
   selector: 'app-root',
