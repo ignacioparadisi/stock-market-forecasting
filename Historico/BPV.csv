@@ -1,4 +1,4 @@
-Date,Price,Open,High,Low,Vol.,Change %
+date,close,open,high,low,volume,change
 2013-03-26,175,175,175,175,1.84K,0.00%
 2013-04-01,178,179,179,178,0.12K,1.63%
 2013-04-02,176,176,176,176,0.69K,-1.11%

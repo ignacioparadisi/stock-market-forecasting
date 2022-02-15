@@ -1,21 +1,30 @@
 import { loadData, createModel } from "./prediction.js";
 import * as tensorflow from '@tensorflow/tfjs-node';
 
-let data = await loadData('MZV.A-VS', 15, 50, true, true, 0.2);
+let symbol = 'MVZ.A';
+let data = await loadData(symbol, true, 15, 50, false, true, 0.2);
 let model = createModel(50, 1, 256, 2, false, 0.4, "meanAbsoluteError", "adam");
 
-function onTrainEnd(logs) {
-    console.log(logs);
-}
+let x = data["x_train"];
+let y = data["y_train"];
+console.log('==================== Y Train ==================');
+console.log(y);
 
-console.log(data["x_train"])
-console.log('---------')
-console.log(data["y_train"]);
-
-model.fit(data["x_train"], data["y_train"], {
+let history = await model.fit(x, y, {
     batchSize: 64,
-    epochs: 10,
+    epochs: 2,
     validationData: [data["x_test"], data["y_test"]],
     verbose: 1,
-    callbacks: { onTrainEnd }
-})
+    callbacks: {
+        onEpochEnd: async (epoch, log) => {
+            console.log(epoch);
+            console.log(log);
+        }
+    }
+});
+
+let path = `file://${process.cwd()}/models/model-${symbol.replace('.', '_')}`
+console.log(`Saving model into ${path}`);
+await model.save(path);
+
+let result = { model, history };

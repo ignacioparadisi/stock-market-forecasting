@@ -1,4 +1,4 @@
-Date,Price,Open,High,Low,Vol.,Change %
+date,close,open,high,low,volume,change
 2015-05-25,12,12,13,12,665.00K,11.36%
 2015-05-26,12,12,12,12,155.00K,0.00%
 2015-05-27,12,12,12,12,253.08K,0.00%

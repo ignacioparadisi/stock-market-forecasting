@@ -1,4 +1,4 @@
-Date,Price,Open,High,Low,Vol.,Change %
+date,close,open,high,low,volume,change
 2015-03-11,39,39,39,39,0.10K,5.41%
 2015-03-18,39,39,39,39,13.73K,0.00%
 2015-03-20,40,40,40,40,23.52K,2.56%

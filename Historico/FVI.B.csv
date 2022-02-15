@@ -1,4 +1,4 @@
-Date,Price,Open,High,Low,Vol.,Change %
+date,close,open,high,low,volume,change
 2014-08-21,13,13,13,13,27.72K,0.00%
 2014-08-25,13,13,13,13,17.32K,0.00%
 2014-08-27,14,14,14,14,520.42K,6.38%

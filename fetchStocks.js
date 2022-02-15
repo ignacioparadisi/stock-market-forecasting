@@ -99,7 +99,7 @@ function whiteCSV(stocks) {
             } else {
                 //write the headers and newline
                 console.log(`Creating new fiel ${fileName}`);
-                let csv = 'Date,Price' + newLine + `${dateString},${stock.value}`
+                let csv = 'date,close' + newLine + `${dateString},${stock.value}`
                 fs.writeFile(fileName, csv, function (err) {
                     if (err) throw err;
                     console.log('file saved');

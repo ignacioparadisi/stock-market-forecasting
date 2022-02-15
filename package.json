@@ -20,6 +20,8 @@
   "dependencies": {
     "@tensorflow/tfjs-node": "^3.13.0",
     "axios": "^0.26.0",
-    "danfojs-node": "^1.0.2"
+    "csvtojson": "^2.0.10",
+    "danfojs-node": "^1.0.2",
+    "scikitjs": "^1.8.0"
   }
 }

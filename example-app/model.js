@@ -58,7 +58,7 @@ async function trainModel(X, Y, window_size, n_epochs, learning_rate, n_layers, 
   });
 
   // ## fit model
-
+  console.log(X);
   const hist = await model.fit(xs, ys,
     { batchSize: batch_size, epochs: n_epochs, callbacks: {
       onEpochEnd: async (epoch, log) => {

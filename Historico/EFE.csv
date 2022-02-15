@@ -1,4 +1,4 @@
-Date,Price,Open,High,Low,Vol.,Change %
+date,close,open,high,low,volume,change
 2017-07-14,544,378,544,378,1.28K,72.70%
 2017-07-17,700,650,700,650,3.00K,28.67%
 2017-07-18,750,750,800,750,2.60K,7.14%
