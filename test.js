@@ -43,12 +43,11 @@ function getFinalDataFrame() {
     if (scale) {
         yTest = math.squeeze(data.columnScaler.close.inverseTransform(expandDims(yTest, 0)).arraySync());
         yPrediction = math.squeeze(data.columnScaler.close.inverseTransform(yPrediction).arraySync());
-        console.log(yTest)
-        console.log(yPrediction)
     }
     let testDataFrame = data.test_dataframe;
-    testDataFrame[`adjustClose${lookUpStep}`] = yPrediction;
-    testDataFrame[`trueAdjustClose${lookUpStep}`] = yTest;
+    console.log(testDataFrame["close"].values.length);
+    testDataFrame.addColumn(`adjustClose${lookUpStep}`, yTest, { inplace: true });
+    testDataFrame.addColumn(`trueAdjustClose${lookUpStep}`, yPrediction, { inplace: true });
     testDataFrame.sortIndex({ inplace: true });
     return testDataFrame;
 }
@@ -69,20 +68,28 @@ console.log(`Mean Absolute Error: ${meanAbsoluteError}`);
 plotGraph(finalDataFrame);
 
 function plotGraph(dataFrame) {
+    dataFrame.print();
+    console.log(dataFrame[`trueAdjustClose${lookUpStep}`].index);
     let trueData = {
-        y: dataFrame[`trueAdjustClose${lookUpStep}`],
-        type: 'scatter'
+        x: dataFrame[`trueAdjustClose${lookUpStep}`].index,
+        y: dataFrame[`trueAdjustClose${lookUpStep}`].values,
+        mode: 'line',
+        name: 'Predicted Price',
+        line: {
+            color: 'rgb(255, 0, 0)',
+        }
     }
     let data = {
-        y: dataFrame[`adjustClose${lookUpStep}`],
-        type: 'scatter'
+        x: dataFrame[`adjustClose${lookUpStep}`].index,
+        y: dataFrame[`adjustClose${lookUpStep}`].values,
+        mode: 'line',
+        name: 'Actual Price',
+        line: {
+            color: 'rgb(0, 0, 255)',
+        }
     }
     var graphOptions = {filename: "date-axes", fileopt: "overwrite"};
-    plotly.plot(trueData, graphOptions, function (err, msg) {
-        if (err) return console.log(err);
-        console.log(msg);
-    });
-    plotly.plot(data, graphOptions, function (err, msg) {
+    plotly.plot([data, trueData], graphOptions, function (err, msg) {
         if (err) return console.log(err);
         console.log(msg);
     });

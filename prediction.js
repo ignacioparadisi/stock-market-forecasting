@@ -175,7 +175,7 @@ function shuffleData(result) {
 
 export async function loadData(symbol, scale = true, lookUpStep = 15, stepsCount = 50, splitByDate = true, shuffle = true, testSize = 0.2) {
     let result = {}
-    let data = await readData(symbol);
+    let data = await requestData(symbol);
     let dataFrame = createDataFrame(data);
     console.log('======================= First DataFrame =======================');
     dataFrame.print();
@@ -225,9 +225,11 @@ export async function loadData(symbol, scale = true, lookUpStep = 15, stepsCount
     let dates = result.x_test.map((array) => array[array.length - 1][1]);
     console.log('======================= Test Dates =======================');
     console.info(dates);
-    result["test_dataframe"] = result["dataframe"].loc(dates);
+    console.info(dates.length);
+    result["test_dataframe"] = result["dataframe"].loc({ rows: dates });
     console.log('======================= Test DataFrame =======================');
     result["test_dataframe"].print()
+    console.log(`Length: ${result["test_dataframe"].values.length}`)
     // TODO: Quitar fechas repetidas (test_dataframe.index)
     let xTrain = result["x_train"].map((array) => array.map(innerArray => [parseFloat(innerArray[0])]));
     result["x_train"] = tensorflow.tensor3d(xTrain, [xTrain.length, xTrain[0].length, xTrain[0][0].length]);

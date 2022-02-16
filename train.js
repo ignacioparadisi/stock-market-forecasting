@@ -12,7 +12,7 @@ console.log(y);
 
 let history = await model.fit(x, y, {
     batchSize: 64,
-    epochs: 2,
+    epochs: 50,
     validationData: [data["x_test"], data["y_test"]],
     verbose: 1,
     callbacks: {
